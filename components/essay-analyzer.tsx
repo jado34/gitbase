@@ -135,6 +135,23 @@ export function EssayAnalyzer({ userId }: EssayAnalyzerProps) {
 
       if (error) throw error
 
+      try {
+        await fetch("/api/update-streak", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            wordCount: analysis.wordCount,
+            score: analysis.overallScore,
+          }),
+        })
+      } catch (streakError) {
+        console.error("Error updating streak:", streakError)
+        // Don't fail the save if streak update fails
+      }
+
       toast({
         title: "Essay Saved!",
         description: "Your essay analysis has been saved to your progress.",
@@ -219,11 +236,13 @@ export function EssayAnalyzer({ userId }: EssayAnalyzerProps) {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="input" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            Essay Input
+            <span className="hidden sm:inline">Essay Input</span>
+            <span className="sm:hidden">Input</span>
           </TabsTrigger>
           <TabsTrigger value="results" className="flex items-center gap-2" disabled={!analysis}>
             <BarChart3 className="h-4 w-4" />
-            Analysis Results
+            <span className="hidden sm:inline">Analysis Results</span>
+            <span className="sm:hidden">Results</span>
           </TabsTrigger>
         </TabsList>
 
@@ -241,8 +260,8 @@ export function EssayAnalyzer({ userId }: EssayAnalyzerProps) {
         <TabsContent value="results" className="space-y-6">
           {analysis && (
             <>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <div className="flex items-center gap-2">
                     <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                       <span className="text-2xl font-bold text-primary">{analysis.overallScore}</span>
@@ -252,9 +271,9 @@ export function EssayAnalyzer({ userId }: EssayAnalyzerProps) {
                       <p className="text-sm text-muted-foreground">Out of 100</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
                     <span>{analysis.wordCount} words</span>
-                    <span>{analysis.readabilityLevel}</span>
+                    <span className="hidden sm:inline">{analysis.readabilityLevel}</span>
                     <Badge
                       variant={
                         analysis.plagiarismRisk === "low"
@@ -268,28 +287,32 @@ export function EssayAnalyzer({ userId }: EssayAnalyzerProps) {
                     </Badge>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <Button
                     onClick={exportToPDF}
                     disabled={isExporting}
                     variant="outline"
+                    size="sm"
                     className="gap-2 bg-transparent"
                   >
                     <Download className="h-4 w-4" />
-                    {isExporting ? "Generating..." : "Export PDF"}
+                    <span className="hidden sm:inline">{isExporting ? "Generating..." : "Export PDF"}</span>
+                    <span className="sm:hidden">PDF</span>
                   </Button>
-                  <Button onClick={saveEssay} disabled={isSaving} className="gap-2">
+                  <Button onClick={saveEssay} disabled={isSaving} size="sm" className="gap-2">
                     <Save className="h-4 w-4" />
-                    {isSaving ? "Saving..." : "Save Essay"}
+                    <span className="hidden sm:inline">{isSaving ? "Saving..." : "Save Essay"}</span>
+                    <span className="sm:hidden">Save</span>
                   </Button>
-                  <Button variant="outline" onClick={resetAnalysis}>
-                    Analyze New Essay
+                  <Button variant="outline" size="sm" onClick={resetAnalysis}>
+                    <span className="hidden sm:inline">Analyze New Essay</span>
+                    <span className="sm:hidden">New</span>
                   </Button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <div className="xl:col-span-2 space-y-6">
                   <ScoreBreakdown scores={analysis.criteria} />
                   <FeedbackPanel
                     feedback={{
