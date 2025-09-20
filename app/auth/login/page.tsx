@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { PasswordInput } from "@/components/ui/password-input"
 
 export default function Page() {
   const [email, setEmail] = useState("")
@@ -66,9 +67,8 @@ export default function Page() {
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input
+                    <PasswordInput
                       id="password"
-                      type="password"
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
